@@ -1,8 +1,19 @@
+# TODO - Allison below is mixes of scripts and a bit confusing - do you want to try to tidy up a bit
+# TODO - loading all the required pacakges at the top etc
+
+
 #Update R packages
 update.packages(ask = FALSE, checkBuilt = TRUE)
+
+# the pacakge needed
+library(here) # making the path works for all of people running it from R
+library(tidyverse)
+library(broom)
+library(broom.mixed)
+
 #######Novel Arena#######
 #Only look at MALES for NA!
-m<-read.csv("C:/Users/Owner/Desktop/CicadaRawNAforPCA.csv",colClasses="character")
+m<-read.csv("data/CicadaRawNAforPCA.csv",colClasses="character")
 head(m)
 #change number columns of csv load to numeric
 m$Leave<-as.numeric(m$Leave)
@@ -56,7 +67,7 @@ biplot(PCApr)
 
 ##HISTOGRAM and qqplots for PC1 WITHOUT TRANSFORMATION
 #Load PC1 data
-n<-read.csv("C:/Users/Owner/Desktop/CicadaNAPC1.csv",colClasses="character")
+n<-read.csv(here("data/CicadaNAPC1.csv"),colClasses="character")
 head(n)
 n$PC1<-as.numeric(n$PC1)
 #Switch sign in PC1 so slow explorers have a smaller PC1 and fast explorers have a larger PC
@@ -79,9 +90,11 @@ residPlot
 ###############REPEATABILITIES WITH NAKAGAWA'S *MODIEFIED* CODE###############
 #This is the final and finished method!!!!
 
-remove.packages("lmeresampler")
-install.packages("lmeresampler")
-library(lmeresampler)
+# remove.packages("lmeresampler")
+# install.packages("lmeresampler")
+#if(!require(devtools)) install.packages("devtools")
+#devtools::install_github("aloy/lmeresampler")
+#library(lmeresampler)
 
 #---
 #title: "Figuring out how to get CI with non-parametric boostraps with linear mixed models"
@@ -97,22 +110,22 @@ library(lmeresampler)
 ## Setting up
 
 #```{r setup, echo=FALSE}
-knitr::opts_chunk$set(
-  message = FALSE,
-  warning = FALSE,
-  tidy = TRUE,
-  echo = TRUE,
-  fig.width = 8
-)
-# clearning up
-rm(list=ls())
+# knitr::opts_chunk$set(
+#   message = FALSE,
+#   warning = FALSE,
+#   tidy = TRUE,
+#   echo = TRUE,
+#   fig.width = 8
+# )
+# # clearning up
+# rm(list=ls())
 
 # loading packages
 #Install pacman
 pacman::p_load(tidyverse, purrr, cplm, lme4, lmeresampler, boot)
 
 # getting functions
-source("/Users/Owner/Desktop/function2.R", chdir = TRUE)
+source("R/function2.R", chdir = TRUE)
 
 #```
 
@@ -123,7 +136,7 @@ source("/Users/Owner/Desktop/function2.R", chdir = TRUE)
 
 #The dataset for the cicadas (males only is "CicadaNAPC1" with the file loaded into R as:
 
-n<-read.csv("C:/Users/Owner/Desktop/CicadaNAPC1.csv",colClasses="character")
+n<-read.csv("data/CicadaNAPC1.csv",colClasses="character")
 
 #Change PC1, Assay, Time, Temp, Humidity, and DaysSinceEmerge to numeric
 n$PC1<-as.numeric(n$PC1)
@@ -147,15 +160,17 @@ lmer100 <- lmer(PC1*100 ~ Assay + DaysSinceMay15 + Time + Temp + Humidity + Days
 # unlike cpglmm models, t values are invariant
 # this is what we want
 summary(lmer1)
+tidy(lmer1)
 summary(lmer100)
+tidy(lmer100)
 
 #```
 
 
 ### Getting correct CI by boostrapping (including repeatability)
 #Reinstall dplyr (Shinichi's code wasn't working because I was using an old version of dplyr) 
-install.packages("dplyr")
-library(dplyr)
+# install.packages("dplyr")
+# library(dplyr)
 
 #We will use fully non-boostrap models so that we can violate almost all assumptions of linear models including the normality of residuals
 
@@ -184,7 +199,7 @@ new_res
 
 
 ###############Get a single EB Score for each individual###############
-n<-read.csv("C:/Users/Owner/Desktop/CicadaNAPC1.csv",colClasses="character")
+n<-read.csv("data/CicadaNAPC1.csv",colClasses="character")
 n$PC1<-as.numeric(n$PC1)
 n$Assay<-as.numeric(n$Assay)
 n$DaysSinceMay15<-as.numeric(n$DaysSinceMay15)
@@ -363,7 +378,7 @@ results_dfm
 
 
 #######Tonic Immobility: MALES#######
-tm<-read.csv("C:/Users/Owner/Desktop/CicadaRawTIforPCAm.csv",colClasses="character")
+tm<-read.csv("data/CicadaRawTIforPCAm.csv",colClasses="character")
 head(tm)
 #change number columns of csv load to numeric
 tm$LatencyToFreeze<-as.numeric(tm$LatencyToFreeze)
@@ -410,7 +425,7 @@ biplot(PCAprtm)
 
 ##HISTOGRAM and qqplots for PC1 WITHOUT TRANSFORMATION
 #Load PC1 data
-ntm<-read.csv("C:/Users/Owner/Desktop/CicadaTIPC1m.csv",colClasses="character")
+ntm<-read.csv("data/CicadaTIPC1m.csv",colClasses="character")
 head(ntm)
 ntm$PC1<-as.numeric(ntm$PC1)
 #Bolder Individuals Already Have Higher PC1
@@ -426,9 +441,9 @@ qqline(ntm$PC1)
 ###############REPEATABILITIES WITH NAKAGAWA'S *MODIFIED* CODE###############
 #This is the final and finished method!!!!
 
-remove.packages("lmeresampler")
-install.packages("lmeresampler")
-library(lmeresampler)
+# remove.packages("lmeresampler")
+# install.packages("lmeresampler")
+# library(lmeresampler)
 
 #---
 #title: "Figuring out how to get CI with non-parametric boostraps with linear mixed models"
@@ -441,36 +456,8 @@ library(lmeresampler)
 
 #We will need to get confidence intervals (CIs) for repeatability for Tweedie distributed data usimng the `cplm` package. We will use chicken behaviour data wiht adjusted PC scores. Actually, it is easy to get "credible" intervals using the `bcplm` function so we will just do that. However, it turns out moding with `cplm` does not really work (see below). So we will use non-parametric bootstrapping and normal linear models (`lme4::lmer`). In this way, we can violate linear model assumptions but we can still get meaningful CIs from `lmer`. 
 
-## Setting up
 
-#```{r setup, echo=FALSE}
-knitr::opts_chunk$set(
-  message = FALSE,
-  warning = FALSE,
-  tidy = TRUE,
-  echo = TRUE,
-  fig.width = 8
-)
-# clearning up
-rm(list=ls())
-
-# loading packages
-#Install pacman
-pacman::p_load(tidyverse, purrr, cplm, lme4, lmeresampler, boot)
-
-# getting functions
-source("/Users/Owner/Desktop/function2.R", chdir = TRUE)
-
-#```
-
-
-## Data preparation
-
-#```{r prep}
-
-#The dataset for the cicadas (males only is "CicadaTIPC1m" with the file loaded into R as:
-
-ntm<-read.csv("C:/Users/Owner/Desktop/CicadaTIPC1m.csv",colClasses="character")
+ntm<-read.csv("data/CicadaTIPC1m.csv",colClasses="character")
 
 #Change PC1, Assay, Time, Temp, Humidity, and DaysSinceEmerge to numeric
 ntm$PC1<-as.numeric(ntm$PC1)
@@ -496,13 +483,6 @@ lmer100tm <- lmer(PC1*100 ~ Assay + DaysSinceMay15 + Time + Temp + Humidity + Ob
 summary(lmer1tm)
 summary(lmer100tm)
 
-#```
-
-
-### Getting correct CI by boostrapping (including repeatability)
-#Reinstall dplyr (Shinichi's code wasn't working because I was using an old version of dplyr) 
-install.packages("dplyr")
-library(dplyr)
 
 #We will use fully non-boostrap models so that we can violate almost all assumptions of linear models including the normality of residuals
 
@@ -531,7 +511,7 @@ new_restm
 
 
 ###############Get a single TI Score for each male###############
-ntm<-read.csv("C:/Users/Owner/Desktop/CicadaTIPC1m.csv",colClasses="character")
+ntm<-read.csv("data/CicadaTIPC1m.csv",colClasses="character")
 ntm$PC1<-as.numeric(ntm$PC1)
 ntm$Assay<-as.numeric(ntm$Assay)
 ntm$DaysSinceMay15<-as.numeric(ntm$DaysSinceMay15)
@@ -549,7 +529,7 @@ ntm$DaysSinceEmerge<-as.numeric(ntm$DaysSinceEmerge)
 #USE BELOW METHOD FOR MODEL SELECTION FOR TONIC IMMOBILITY
 #Method use the MuMIN package: https://stackoverflow.com/questions/28606549/how-to-run-lm-models-using-all-possible-combinations-of-several-variables-and-a/52300594
 #Also note this link to set the na.action argument and make sure there are no errors when using the dredge function: https://stackoverflow.com/questions/25281739/dredge-function-error-r-package-mumln  
-install.packages("MuMIn")
+#install.packages("MuMIn")
 library(MuMIn)
 require(MuMIn)
 globalmodel <- lm(PC1~ID+Assay+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerge+Observer,data=ntm,na.action = "na.fail")
@@ -586,7 +566,7 @@ results_dfm
 
 
 #######Tonic Immobility: FEMALES#######
-tf<-read.csv("C:/Users/Owner/Desktop/CicadaRawTIforPCAf.csv",colClasses="character")
+tf<-read.csv("data/CicadaRawTIforPCAf.csv",colClasses="character")
 head(tf)
 #change number columns of csv load to numeric
 tf$LatencyToFreeze<-as.numeric(tf$LatencyToFreeze)
@@ -647,53 +627,11 @@ qqline(ntf$PC1)
 
 ###########Test for REPEATABILITY for TI ASSAY FEMALES
 ###############REPEATABILITIES WITH NAKAGAWA'S *MODIEFIED* CODE###############
-#This is the final and finished method!!!!
 
-remove.packages("lmeresampler")
-install.packages("lmeresampler")
-library(lmeresampler)
-
-#---
-#title: "Figuring out how to get CI with non-parametric boostraps with linear mixed models"
-#author: "Shinichi Nakagawa"
-#date: "09/08/2018"
-#output: htfl_document
-#---
-
-## Background
-
-#We will need to get confidence intervals (CIs) for repeatability for Tweedie distributed data usimng the `cplm` package. We will use chicken behaviour data wiht adjusted PC scores. Actually, it is easy to get "credible" intervals using the `bcplm` function so we will just do that. However, it turns out moding with `cplm` does not really work (see below). So we will use non-parametric bootstrapping and normal linear models (`lme4::lmer`). In this way, we can violate linear model assumptions but we can still get meaningful CIs from `lmer`. 
-
-## Setting up
-
-#```{r setup, echo=FALSE}
-knitr::opts_chunk$set(
-  message = FALSE,
-  warning = FALSE,
-  tidy = TRUE,
-  echo = TRUE,
-  fig.width = 8
-)
-# clearning up
-rm(list=ls())
-
-# loading packages
-#Install pacman
-pacman::p_load(tidyverse, purrr, cplm, lme4, lmeresampler, boot)
-
-# getting functions
-source("/Users/Owner/Desktop/function2.R", chdir = TRUE)
-
-#```
-
-
-## Data preparation
-
-#```{r prep}
 
 #The dataset for the cicadas (FEMALEs only is "CicadaTIPC1f" with the file loaded into R as:
 
-ntf<-read.csv("C:/Users/Owner/Desktop/CicadaTIPC1f.csv",colClasses="character")
+ntf<-read.csv("data/CicadaTIPC1f.csv",colClasses="character")
 
 #Change PC1, Assay, Time, Temp, Humidity, and DaysSinceEmerge to numeric
 ntf$PC1<-as.numeric(ntf$PC1)
@@ -723,9 +661,6 @@ summary(lmer100tf)
 
 
 ### Getting correct CI by boostrapping (including repeatability)
-#Reinstall dplyr (Shinichi's code wasn't working because I was using an old version of dplyr) 
-install.packages("dplyr")
-library(dplyr)
 
 #We will use fully non-boostrap models so that we can violate almost all assumptions of linear models including the normality of residuals
 
@@ -751,11 +686,8 @@ new_restf
 #sessionInfo()
 #```
 
-
-
-
 ###############Get a single TI Score for each female###############
-ntf<-read.csv("C:/Users/Owner/Desktop/CicadaTIPC1f.csv",colClasses="character")
+ntf<-read.csv("data/CicadaTIPC1f.csv",colClasses="character")
 ntf$PC1<-as.numeric(ntf$PC1)
 ntf$Assay<-as.numeric(ntf$Assay)
 ntf$DaysSinceMay15<-as.numeric(ntf$DaysSinceMay15)
@@ -773,9 +705,9 @@ ntf$DaysSinceEmerge<-as.numeric(ntf$DaysSinceEmerge)
 #USE BELOW METHOD FOR MODEL SELECTION FOR TONIC IMMOBILITY
 #Method use the MuMIN package: https://stackoverflow.com/questions/28606549/how-to-run-lm-models-using-all-possible-combinations-of-several-variables-and-a/52300594
 #Also note this link to set the na.action argument and make sure there are no errors when using the dredge function: https://stackoverflow.com/questions/25281739/dredge-function-error-r-package-mumln  
-install.packages("MuMIn")
-library(MuMIn)
-require(MuMIn)
+# install.packages("MuMIn")
+# library(MuMIn)
+# require(MuMIn)
 globalmodel <- lm(PC1~ID+Assay+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerge+Observer,data=ntf,na.action = "na.fail")
 combinations <- dredge(globalmodel)
 print(combinations)
@@ -798,31 +730,21 @@ results_dfm
 
 
 
-
-
-
-
 ########Are EB and TI correlated?
-BS<-read.csv("/Users/Owner/Desktop/CicadaBehavSynd.csv",colClasses="character")
+BS<-read.csv("data/CicadaBehavSynd.csv",colClasses="character")
 BS$TI<-as.numeric(BS$TI)
 BS$EB<-as.numeric(BS$EB)
 cor.test(BS$EB,BS$TI)
 #No significant correlation between EB and TI
 
 
-
-
-
-
-
 #########MATING ANALYSES#########
-#########MATING ANALYSES#########
-#########MATING ANALYSES#########
-#########MATING ANALYSES#########
+
+
 library(lmerTest)
-install.packages("glmmTMB")
+#install.packages("glmmTMB")
 library(glmmTMB)
-I<-read.csv("/Users/Owner/Desktop/CicadaCollatedMatingData.csv",colClasses="character")
+I<-read.csv("data/CicadaCollatedMatingData.csv",colClasses="character")
 head(I)
 I$Pen[I$Pen == "1"] <- "A"
 I$Pen[I$Pen == "2"] <- "B"
@@ -859,7 +781,7 @@ shapiro.test(dead$EB)
 #Normal enough (p > 0.05)
 ##Because EB measures are "normal enough" for both alive and dead males, we can use a upaired 2 tailed t-test (which is a parametric test)
 #See Table 3: https://www.biochemia-medica.com/en/journal/20/1/10.11613/BM.2010.004/fullArticle
-install.packages("ggpubr")
+#install.packages("ggpubr")
 library(ggpubr)
 t.test(alive$EB, dead$EB, alternative = "two.sided", var.equal = FALSE)
 #NO SIGNIFICANT DIFFERENCE IN EB BETWEEN DEAD AND ALIVE MALES - so it's ok to leave them in the analyses
@@ -942,54 +864,77 @@ I <- transform(I,Weight.sc=scale(Weight),EB.sc=scale(EB),TI.sc=scale(TI))
 #summary(Test1) 
 #SHINICHI DOESN'T THINK WEIGHTING OUR MODELS BY DIED VS NOT DIED IS NECESSARY 
 #Updated unweighted models
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
+Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
 summary(Test1) 
 
 #Currently Pen A is the reference class
 #Change Pen B to reference class
 I$Pen[I$Pen == "B"] <- "1B"
 #Rerun analyses
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
+Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
 summary(Test1) 
-#Switch Pen 1B back to Pen B
-I$Pen[I$Pen == "1B"] <- "B"
-#Change Pen C to reference class
-I$Pen[I$Pen == "C"] <- "1C"
-#Rerun analyses
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
-summary(Test1) 
-#Switch Pen 1C back to Pen C
-I$Pen[I$Pen == "1C"] <- "C"
-#Change Pen D to reference class
-I$Pen[I$Pen == "D"] <- "1D"
-#Rerun analyses
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
-summary(Test1) 
-#Switch Pen 1D back to Pen D
-I$Pen[I$Pen == "1D"] <- "D"
+tidy(Test1)
 
+# just assuming this is the best mode
+library(emmeans)
+
+pred_results <- Test1 %>% 
+  emmeans(~ EB.sc,
+          #by = I$EB.sc,
+          at = list(EB.sc = seq(min(I$EB.sc),max(I$EB.sc),length.out = 100)),
+          type="response",
+          re_formula = NA) %>% as_data_frame()
+
+ggplot() +
+  # putting bubbles
+  geom_point(data = I, aes(x = EB.sc, y = Mated, color = as.factor(Mated)), size = 4, alpha = 0.8, fill = "grey90" ) +
+  # confidence interval
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = lower.CL), method =  "loess", formula = y~x, se = FALSE,lty = "dotted", col = "black") +
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = upper.CL), method =  "loess", formula = y~x, se = FALSE, lty ="dotted", col = "black") +
+  # main line
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = prob), method =  "loess", formula = y~x, se = FALSE, col = "black") +
+  theme_bw() +
+  scale_color_manual(values = c("blue", "red")) +
+  theme(legend.position = "none")  +
+  labs(y = "Successful mating (Yes = 1 & No = 0)", x = "Exploratory Beahviour Score")
+ 
+
+# #Switch Pen 1B back to Pen B
+# I$Pen[I$Pen == "1B"] <- "B"
+# #Change Pen C to reference class
+# I$Pen[I$Pen == "C"] <- "1C"
+# #Rerun analyses
+# Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
+# summary(Test1) 
+# #Switch Pen 1C back to Pen C
+# I$Pen[I$Pen == "1C"] <- "C"
+# #Change Pen D to reference class
+# I$Pen[I$Pen == "D"] <- "1D"
+# #Rerun analyses
+# Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
+# summary(Test1) 
+# #Switch Pen 1D back to Pen D
+# I$Pen[I$Pen == "1D"] <- "D"
+
+# TODO - please check whether this original result stands
 #LRT Location
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
-Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
+Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
+Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
 anova(Test1, Test1n, test="Chisq") 
 
 #LRT Date
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
-Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Pen + (1|ID) + (1|Group), data=I, family = binomial)
+Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
+Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
 anova(Test1, Test1n, test="Chisq") 
 
-#LRT Pen
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
-Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + (1|ID) + (1|Group), data=I, family = binomial)
-anova(Test1, Test1n, test="Chisq") 
+# #LRT Pen
+# Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
+# Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
+# anova(Test1, Test1n, test="Chisq") 
 
 
 
-
-
-
-
-###########M-M ATTEMPTED COPULATIONS###########
+########### M-M ATTEMPTED COPULATIONS ###########
 hist(I$MM, breaks=20,xlab="M-M Attempted Copulations")
 #Will need to use a zero inflated Poisson
 #Weight by whether they died midway through the day
@@ -997,31 +942,32 @@ hist(I$MM, breaks=20,xlab="M-M Attempted Copulations")
 #summary(Test2) 
 #SHINICHI DOESN'T THINK WEIGHTING OUR MODELS BY DIED VS NOT DIED IS NECESSARY 
 #Updated unweighted models
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 summary(Test2) 
+tidy(Test2)
 
 #Currently Pen A is the reference class
 #Change Pen B to reference class
-I$Pen[I$Pen == "B"] <- "1B"
-#Rerun analyses
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-summary(Test2)
-#Switch Pen 1B back to Pen B
-I$Pen[I$Pen == "1B"] <- "B"
-#Change Pen C to reference class
-I$Pen[I$Pen == "C"] <- "1C"
-#Rerun analyses
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-summary(Test2)
-#Switch Pen 1C back to Pen C
-I$Pen[I$Pen == "1C"] <- "C"
-#Change Pen D to reference class
-I$Pen[I$Pen == "D"] <- "1D"
-#Rerun analyses
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-summary(Test2)
-#Switch Pen 1D back to Pen D
-I$Pen[I$Pen == "1D"] <- "D"
+# I$Pen[I$Pen == "B"] <- "1B"
+# #Rerun analyses
+# Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+# summary(Test2)
+# #Switch Pen 1B back to Pen B
+# I$Pen[I$Pen == "1B"] <- "B"
+# #Change Pen C to reference class
+# I$Pen[I$Pen == "C"] <- "1C"
+# #Rerun analyses
+# Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+# summary(Test2)
+# #Switch Pen 1C back to Pen C
+# I$Pen[I$Pen == "1C"] <- "C"
+# #Change Pen D to reference class
+# I$Pen[I$Pen == "D"] <- "1D"
+# #Rerun analyses
+# Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+# summary(Test2)
+# #Switch Pen 1D back to Pen D
+# I$Pen[I$Pen == "1D"] <- "D"
 
 #LRT Location
 Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
@@ -1033,27 +979,24 @@ Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) +
 Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 anova(Test2, Test2n, test="Chisq") 
 
-#LRT Pen
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-anova(Test2, Test2n, test="Chisq") 
-
-
-
+# #LRT Pen
+# Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+# Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+# anova(Test2, Test2n, test="Chisq") 
 
 
 
 
 ###########ALL (BOTH SUCCESSFUL AND UNSUCCESSFUL) ATTEMPTED COPULATIONS WITH EITHER SEX###########
 I$All<-I$Mated+I$MU+I$MM
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 summary(Test0)
 
 #Currently Pen A is the reference class
 #Change Pen B to reference class
 I$Pen[I$Pen == "B"] <- "1B"
 #Rerun analyses
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen)  + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 summary(Test0) 
 #Switch Pen 1B back to Pen B
 I$Pen[I$Pen == "1B"] <- "B"
@@ -1094,7 +1037,7 @@ anova(Test0, Test0n, test="Chisq")
 
 
 ###########M-M ADVERTISEMENT RATE###########
-A<-read.csv("/Users/Owner/Desktop/CicadaCollatedAdvertData.csv",colClasses="character")
+A<-read.csv("data/CicadaCollatedAdvertData.csv",colClasses="character")
 head(A)
 A$ID<-as.factor(A$ID)
 A$DurationCI<-as.numeric(A$DurationCI)
