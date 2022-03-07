@@ -13,7 +13,7 @@ library(broom.mixed)
 
 #######Novel Arena#######
 #Only look at MALES for NA!
-m<-read.csv("data/CicadaRawNAforPCA.csv",colClasses="character")
+m<-read.csv(here("data/CicadaRawNAforPCA.csv"),colClasses="character")
 head(m)
 #change number columns of csv load to numeric
 m$Leave<-as.numeric(m$Leave)
