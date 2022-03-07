@@ -883,7 +883,7 @@ pred_results <- Test1 %>%
           #by = I$EB.sc,
           at = list(EB.sc = seq(min(I$EB.sc),max(I$EB.sc),length.out = 100)),
           type="response",
-          re_formula = NA) %>% as_data_frame()
+          re_formula = NA) %>% as.data.frame()
 
 ggplot() +
   # putting bubbles
@@ -946,6 +946,29 @@ Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|I
 summary(Test2) 
 tidy(Test2)
 
+
+pred_results <- Test2 %>% 
+  emmeans(~ EB.sc,
+          #by = I$EB.sc,
+          at = list(EB.sc = seq(min(I$EB.sc),max(I$EB.sc),length.out = 100)),
+          type="response",
+          re_formula = NA) %>% as.data.frame()
+
+ggplot() +
+  # putting bubbles
+  geom_point(data = I, aes(x = EB.sc, y = MM, color = MM), size = 4, alpha = 0.6, fill = "grey90" ) +
+  # confidence interval
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = lower.CL), method =  "loess", formula = y~x, se = FALSE,lty = "dotted", col = "black") +
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = upper.CL), method =  "loess", formula = y~x, se = FALSE, lty ="dotted", col = "black") +
+  # main line
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = rate), method =  "loess", formula = y~x, se = FALSE, col = "black") +
+  theme_bw() +
+  scale_color_gradient() +
+  theme(legend.position = "none")  +
+  labs(y = "The Number of Male-Male Copulatoins", x = "Exploratory Beahviour Score")
+
+
+
 #Currently Pen A is the reference class
 #Change Pen B to reference class
 # I$Pen[I$Pen == "B"] <- "1B"
@@ -970,13 +993,13 @@ tidy(Test2)
 # I$Pen[I$Pen == "1D"] <- "D"
 
 #LRT Location
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 anova(Test2, Test2n, test="Chisq") 
 
 #LRT Date
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 anova(Test2, Test2n, test="Chisq") 
 
 # #LRT Pen
@@ -1012,6 +1035,36 @@ I$Pen[I$Pen == "D"] <- "1D"
 #Rerun analyses
 Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 summary(Test0) 
+
+
+pred_results <- Test0 %>% 
+  emmeans(~ EB.sc,
+          #by = I$EB.sc,
+          at = list(EB.sc = seq(min(I$EB.sc),max(I$EB.sc),length.out = 100)),
+          type="response",
+          re_formula = NA) %>% as.data.frame()
+
+ggplot() +
+  # putting bubbles
+  geom_point(data = I, aes(x = EB.sc, y = All, color = All), size = 4, alpha = 0.6, fill = "grey90" ) +
+  # confidence interval
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = lower.CL), method =  "loess", formula = y~x, se = FALSE,lty = "dotted", col = "black") +
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = upper.CL), method =  "loess", formula = y~x, se = FALSE, lty ="dotted", col = "black") +
+  # main line
+  geom_smooth(data = pred_results, aes(x = EB.sc, y = rate), method =  "loess", formula = y~x, se = FALSE, col = "black") +
+  theme_bw() +
+  scale_color_gradient() +
+  theme(legend.position = "none")  +
+  labs(y = "The Number of All Copulatoins", x = "Exploratory Beahviour Score")
+
+
+
+
+
+
+
+
+
 #Switch Pen 1D back to Pen D
 I$Pen[I$Pen == "1D"] <- "D"
 
