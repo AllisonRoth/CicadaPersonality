@@ -896,7 +896,7 @@ ggplot() +
   theme_bw() +
   scale_color_manual(values = c("blue", "red")) +
   theme(legend.position = "none")  +
-  labs(y = "Successful mating (Yes = 1 & No = 0)", x = "Exploratory Beahviour Score")
+  labs(y = "Successful Copulation (Yes = 1 & No = 0)", x = "Exploration Behavior Score")
  
 
 # #Switch Pen 1B back to Pen B
@@ -965,7 +965,7 @@ ggplot() +
   theme_bw() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
-  labs(y = "The Number of Male-Male Copulatoins", x = "Exploratory Beahviour Score")
+  labs(y = "Number of Male-Male Copulation Attempts", x = "Exploration Behavior Score")
 
 
 
@@ -1055,7 +1055,7 @@ ggplot() +
   theme_bw() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
-  labs(y = "The Number of All Copulatoins", x = "Exploratory Beahviour Score")
+  labs(y = "Number of All Copulation Attempts", x = "Exploration Behavior Score")
 
 
 
