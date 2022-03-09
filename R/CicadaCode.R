@@ -896,7 +896,7 @@ ggplot() +
   theme_bw() +
   scale_color_manual(values = c("blue", "red")) +
   theme(legend.position = "none")  +
-  labs(y = "Successful Copulation (Yes = 1 & No = 0)", x = "Exploration Behavior Score (z-transformed)")
+  labs(y = "Successful Copulation (Yes = 1 & No = 0)", x = "Exploration Score (z-transformed)")
 
 # #Switch Pen 1B back to Pen B
 # I$Pen[I$Pen == "1B"] <- "B"
@@ -964,7 +964,7 @@ ggplot() +
   theme_bw() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
-  labs(y = "Number of Male-Male Copulation Attempts", x = "Exploration Behavior Score (z-transformed)")
+  labs(y = "Number of Male-Male Copulation Attempts", x = "Exploration Score (z-transformed)")
 
 
 
@@ -1056,7 +1056,7 @@ ggplot() +
   theme_bw() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
-  labs(y = "Number of All Attempted Copulations", x = "Exploration Behavior Score (z-transformed)")
+  labs(y = "Number of All Attempted Copulations", x = "Exploration Score (z-transformed)")
 
 
 
