@@ -1056,7 +1056,7 @@ ggplot() +
   theme_bw() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
-  labs(y = "Number of All Attemptd Copulations", x = "Exploratory Behavior Score (z transformed)")
+  labs(y = "Number of All Attempted Copulations", x = "Exploratory Behavior Score (z transformed)")
 
 
 
