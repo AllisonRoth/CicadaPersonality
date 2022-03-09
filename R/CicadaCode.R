@@ -125,7 +125,7 @@ residPlot
 pacman::p_load(tidyverse, purrr, cplm, lme4, lmeresampler, boot)
 
 # getting functions
-source("R/function2.R", chdir = TRUE)
+source(here("R/function2.R"), chdir = TRUE)
 
 #```
 
@@ -136,7 +136,7 @@ source("R/function2.R", chdir = TRUE)
 
 #The dataset for the cicadas (males only is "CicadaNAPC1" with the file loaded into R as:
 
-n<-read.csv("data/CicadaNAPC1.csv",colClasses="character")
+n<-read.csv(here("data/CicadaNAPC1.csv"),colClasses="character")
 
 #Change PC1, Assay, Time, Temp, Humidity, and DaysSinceEmerge to numeric
 n$PC1<-as.numeric(n$PC1)
@@ -199,7 +199,7 @@ new_res
 
 
 ###############Get a single EB Score for each individual###############
-n<-read.csv("data/CicadaNAPC1.csv",colClasses="character")
+n<-read.csv(here("data/CicadaNAPC1.csv"),colClasses="character")
 n$PC1<-as.numeric(n$PC1)
 n$Assay<-as.numeric(n$Assay)
 n$DaysSinceMay15<-as.numeric(n$DaysSinceMay15)
@@ -378,7 +378,7 @@ results_dfm
 
 
 #######Tonic Immobility: MALES#######
-tm<-read.csv("data/CicadaRawTIforPCAm.csv",colClasses="character")
+tm<-read.csv(here("data/CicadaRawTIforPCAm.csv"),colClasses="character")
 head(tm)
 #change number columns of csv load to numeric
 tm$LatencyToFreeze<-as.numeric(tm$LatencyToFreeze)
@@ -896,7 +896,7 @@ ggplot() +
   theme_bw() +
   scale_color_manual(values = c("blue", "red")) +
   theme(legend.position = "none")  +
-  labs(y = "Successful mating (Yes = 1 & No = 0)", x = "Exploratory Beahviour Score")
+  labs(y = "Successful mating (Yes = 1 & No = 0)", x = "Exploratory Beahviour Score (z transformed)")
  
 
 # #Switch Pen 1B back to Pen B
@@ -965,7 +965,7 @@ ggplot() +
   theme_bw() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
-  labs(y = "The Number of Male-Male Copulatoins", x = "Exploratory Beahviour Score")
+  labs(y = "The Number of Male-Male Copulatoins", x = "Exploratory Beahviour Score (z transformed)")
 
 
 
@@ -1052,10 +1052,11 @@ ggplot() +
   geom_smooth(data = pred_results, aes(x = EB.sc, y = upper.CL), method =  "loess", formula = y~x, se = FALSE, lty ="dotted", col = "black") +
   # main line
   geom_smooth(data = pred_results, aes(x = EB.sc, y = rate), method =  "loess", formula = y~x, se = FALSE, col = "black") +
+  ylim(c(0,6))+
   theme_bw() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
-  labs(y = "The Number of All Copulatoins", x = "Exploratory Beahviour Score")
+  labs(y = "The Number of All Copulatoins", x = "Exploratory Beahviour Score (z transformed)")
 
 
 
