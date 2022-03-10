@@ -12,7 +12,7 @@ library(broom)
 library(broom.mixed)
 
 #######Novel Arena#######
-#Only look at MALES for NA!
+#Only look at MALES for NA
 m<-read.csv(here("data/CicadaRawNAforPCA.csv"),colClasses="character")
 head(m)
 #change number columns of csv load to numeric
@@ -25,15 +25,7 @@ m$ID<-as.factor(m$ID)
 #Find out how many unique individuals were tested
 length(unique(m[["ID"]]))
 
-#Change Leave so it actually represents 5 minutes (300s) minus leave time so that it lines up in directionality with the other variables. e.g., A larger variable for this new variable which I'll call "LeaveNew" (i.e., time spent moving) will represent a faster exploring individual. Faster exploring individuals will also have higher values for Quadrats, Trans, and Sides.
-#m$LeaveNew<-300-(m$Leave)
-#head(m)
-#NOTE: Looks like this doesn't actually matter for PCA (so didn't actually need to do this!)
-
 #Standardize (Z-transform) variables
-#https://stats.stackexchange.com/questions/69157/why-do-we-need-to-normalize-data-before-principal-component-analysis-pca  
-#https://stackoverflow.com/questions/15215457/standardize-data-columns-in-r
-#The most common normalization is the z-transformation, where you subtract the mean and divide by the standard deviation of your variable. The result will have mean=0 and sd=1.
 m$LeaveNew <- (m$Leave - mean(m$Leave)) / sd(m$Leave)
 m$Quadrats <- (m$Quadrats - mean(m$Quadrats)) / sd(m$Quadrats)
 m$Trans <- (m$Trans - mean(m$Trans)) / sd(m$Trans)
@@ -46,7 +38,6 @@ head(SubAll)
 #PCA
 pcAll<-princomp(SubAll,cor=TRUE,scores=TRUE)
 summary(pcAll)
-#0.836176 of variance is explained bt PC1 
 
 biplot(pcAll)
 pcAll$loadings
@@ -55,14 +46,11 @@ AllScores
 
 #See loadings
 PCApr <- prcomp(SubAll,center = TRUE,scale. = TRUE) 
-####IMPORTANT Different variables are loaded strongly and consistently
 print(PCApr)
 plot(PCApr, type = "l")
 summary(PCApr)
 biplot(PCApr)
-
 #write.csv(AllScores, file = "CicadaNAPC1.csv")
-#Have to add Individual IDs in to the CSV file (Copy and paste "ID" column from "CicadaRawNAforPCA.csv" into "CicadaNAPC1.csv"). Remove everything except PC1. Save file with individuals as CicadaNAPC1 for simplicity.
 
 
 ##HISTOGRAM and qqplots for PC1 WITHOUT TRANSFORMATION
@@ -211,126 +199,8 @@ n$DaysSinceEmerge<-as.numeric(n$DaysSinceEmerge)
 n$PC1n <- n$PC1*-1
 
 #In order to control for fixed effects we used a LM of PC1 to obtain a single EB score for each individual. 
-
-#######IMPORTANT: See below all of this AICc stuff for an easier way to do model selection than manually figuring out every possible model combination 
-#######IMPORTANT: See below all of this AICc stuff for an easier way to do model selection than manually figuring out every possible model combination 
-
-#Install and load AICcmodavg
-library(AICcmodavg)
-
 #Use: Assay, DaysSinceMay15, Time, Temp, Humidity, DaysSinceEmerge, and Individual identity as fixed effects
-
-#Full model
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-#5 variables (in addition to ID)
-#Should be 6 combinations because (6!)/(5!*((6-5)!))= 6
-#https://socratic.org/questions/how-many-different-three-member-teams-can-be-formed-from-six-students
-AICc((glm(PC1n~ID+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Time+Temp+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Temp+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Time+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Time+Temp+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Time+Temp+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-#4 variables (in addition to ID)
-#Should be 15 combinations because (6!)/(4!*((6-4)!))=15
-#https://socratic.org/questions/how-many-different-three-member-teams-can-be-formed-from-six-students
-AICc((glm(PC1n~ID+Time+Temp+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Temp+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Time+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Time+Temp+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Time+Temp+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Assay+Temp+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Time+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Time+Temp+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Time+Temp+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Temp+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Temp+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Time+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Time+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Time+Temp,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-
-#3 variables (in addition to ID)
-#Should be 20 combinations because (6!)/(3!*((6-3)!))=20
-#https://socratic.org/questions/how-many-different-three-member-teams-can-be-formed-from-six-students
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Time,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Temp,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Assay+Time+Temp,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Time+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Time+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Assay+Temp+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Temp+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Assay+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+DaysSinceMay15+Time+Temp,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Time+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Time+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+DaysSinceMay15+Temp+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Temp+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+DaysSinceMay15+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Time+Temp+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Time+Temp+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Time+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Temp+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-
-#2 Variables (in addition to ID)
-#Should be 15 combinations because (6!)/(2!*((6-2)!))=15
-#https://socratic.org/questions/how-many-different-three-member-teams-can-be-formed-from-six-students
-AICc((glm(PC1n~ID+Assay+DaysSinceMay15,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Time,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Temp,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Assay+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+DaysSinceMay15+Time,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Temp,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Time+Temp,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Time+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Time+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Temp+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Temp+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-AICc((glm(PC1n~ID+Humidity+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-
-#1 Variable (in addition to ID)
-#Should be 5 combinations because (6!)/(1!*((6-1)!))=5
-#https://socratic.org/questions/how-many-different-three-member-teams-can-be-formed-from-six-students
-AICc((glm(PC1n~ID+Assay,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceMay15,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Time,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Temp,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+Humidity,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-AICc((glm(PC1n~ID+DaysSinceEmerge,data=n,family = gaussian)), return.K = FALSE, second.ord = TRUE, nobs = NULL, c.hat = 1)
-
-
-#######IMPORTANT: There was an easier way to do model selection than manually figuring out every possible model combination 
-#######IMPORTANT: There was an easier way to do model selection than manually figuring out every possible model combination 
-#USE BELOW METHOD FOR MODEL SELECTION FOR TONIC IMMOBILITY
-#Method use the MuMIN package: https://stackoverflow.com/questions/28606549/how-to-run-lm-models-using-all-possible-combinations-of-several-variables-and-a/52300594
-#Also note this link to set the na.action argument and make sure there are no errors when using the dredge function: https://stackoverflow.com/questions/25281739/dredge-function-error-r-package-mumln  
+#USE BELOW METHOD FOR MODEL SELECTION 
 install.packages("MuMIn")
 library(MuMIn)
 require(MuMIn)
@@ -338,30 +208,14 @@ globalmodel <- lm(PC1n~ID+Assay+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerg
 combinations <- dredge(globalmodel)
 print(combinations)
 #Now from this printed list find the model with the lowest AICc that also INCLUDES Individual ID (since ID always needs to be kept in the model)
-#Note this result matches up with what we found foing things the hard way (i.e., manually)
-#The model with ID, Temperature, and Time is the best fit model 
-
-####Model with lowest AICc is:
-#NA1<-glm(PC1n~ID+Time+Temp,data=n,family = gaussian)
-#summary(NA1)
-#The number that is listed under each individual should be added to the value listed under "Intercept" to obtain the resulting EB score. 
-#For example for Individual 102 the EB score would be 4.640e-02 + 3.051e+00 = 3.0974. 
-#Furthermore, we  tested 99 individuals, but the model output only lists 98 or those 99 individuals. 
-#Given this, the value found under intercept is the EB score for the missing individual (i.e. the individual who is not listed here).
-
-
-#SHINICHI says "you probably want to run your model with = ~ ID - 1 - then you can get SE for each individual. You should now see, ID101, ID102, ID103, ID104... (no Intercept)"
 NA1<-lm(PC1n~ID - 1 +Time+Temp,data=n)
 summary(NA1)
 
 
 #Extract the coefficients data frame so we can write the output into a CSV file
 results_dfm <-summary.lm(NA1)$coefficients
-#Note: Command would be "summary.glm" if left in glm with guassian distribution format 
 results_dfm
 #write.csv(results_dfm, file = "LmEBCicadas.csv")
-#DON'T NEED TO DO THIS ANYMORE THANKS TO SHINICHI'S SUGGESTIONS: Add intercept to all individual's estimates to get EB Score for each individual
-#DON'T NEED TO DO THIS ANYMORE THANKS TO SHINICHI'S SUGGESTIONS:Find missing individual (it is male 101 here)
 #Output shows faster explores as having higher values 
 
 
@@ -390,9 +244,6 @@ tm$ID<-as.factor(tm$ID)
 length(unique(tm[["ID"]]))
 
 #Standardize (Z-transform) variables
-#https://stats.stackexchange.com/questions/69157/why-do-we-need-to-normalize-data-before-principal-component-analysis-pca  
-#https://stackoverflow.com/questions/15215457/standardize-data-columns-in-r
-#The most common normalization is the z-transformation, where you subtract the mean and divide by the standard deviation of your variable. The result will have mean=0 and sd=1.
 tm$LatencyToFreeze <- (tm$LatencyToFreeze - mean(tm$LatencyToFreeze)) / sd(tm$LatencyToFreeze)
 tm$TimeFrozen <- (tm$TimeFrozen - mean(tm$TimeFrozen)) / sd(tm$TimeFrozen)
 tm$TimesFlipped <- (tm$TimesFlipped - mean(tm$TimesFlipped)) / sd(tm$TimesFlipped)
@@ -404,7 +255,6 @@ head(SubAlltm)
 #PCA
 pcAlltm<-princomp(SubAlltm,cor=TRUE,scores=TRUE)
 summary(pcAlltm)
-#0.5395744 of variance is explained bt PC1 - originally not sure if this was good enoug - YES IT IS GOOD ENOUGH as it matches up with the amount of variance explained by PC1 for Red Junglefowl Novel Object Assay!!!!
 
 biplot(pcAlltm)
 pcAlltm$loadings
@@ -413,14 +263,12 @@ AllScorestm
 
 #See loadings
 PCAprtm <- prcomp(SubAlltm,center = TRUE,scale. = TRUE) 
-####IMPORTANT Different variables are loaded strongly and consistently
 print(PCAprtm)
 plot(PCAprtm, type = "l")
 summary(PCAprtm)
 biplot(PCAprtm)
 
 #write.csv(AllScorestm, file = "CicadaTIPC1m.csv")
-#Have to add Individual IDs in to the CSV file (Copy and paste "ID" column from "CicadaRawTIforPCAm.csv" into "CicadaTIPC1m.csv"). Remove everything except PC1 (also kept in PC2 here - decided PC2 was not necessary (see above)). Save file with individuals as CicadaTIPC1m for simplicity.
 
 
 ##HISTOGRAM and qqplots for PC1 WITHOUT TRANSFORMATION
@@ -526,22 +374,14 @@ ntm$DaysSinceEmerge<-as.numeric(ntm$DaysSinceEmerge)
 
 #Use: Assay, DaysSinceMay15, Time, Temp, Humidity, DaysSinceEmerge, Observer, and Individual identity as fixed effects
 
-#USE BELOW METHOD FOR MODEL SELECTION FOR TONIC IMMOBILITY
-#Method use the MuMIN package: https://stackoverflow.com/questions/28606549/how-to-run-lm-models-using-all-possible-combinations-of-several-variables-and-a/52300594
-#Also note this link to set the na.action argument and make sure there are no errors when using the dredge function: https://stackoverflow.com/questions/25281739/dredge-function-error-r-package-mumln  
-#install.packages("MuMIn")
+#USE BELOW METHOD FOR MODEL SELECTION 
 library(MuMIn)
 require(MuMIn)
 globalmodel <- lm(PC1~ID+Assay+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerge+Observer,data=ntm,na.action = "na.fail")
 combinations <- dredge(globalmodel)
 print(combinations)
-#Now from this printed list find the model with the lowest AICc that also INCLUDES Individual ID (since ID always needs to be kept in the model)
-#The model with ID and Temperature is the best fit model
 
-####Model with lowest AICc is:
-#TI1m<-lm(PC1~ID+Temp,data=ntm)
-#summary(TI1m)
-#SHINICHI says "you probably want to run your model with = ~ ID - 1 - then you can get SE for each individual. You should now see, ID101, ID102, ID103, ID104... (no Intercept)"
+#Now from this printed list find the model with the lowest AICc that also INCLUDES Individual ID (since ID always needs to be kept in the model)
 TI1m<-lm(PC1~ID - 1 +Temp,data=ntm)
 summary(TI1m)
 
@@ -578,9 +418,6 @@ tf$ID<-as.factor(tf$ID)
 length(unique(tf[["ID"]]))
 
 #Standardize (Z-transform) variables
-#https://stats.stackexchange.com/questions/69157/why-do-we-need-to-normalize-data-before-principal-component-analysis-pca  
-#https://stackoverflow.com/questions/15215457/standardize-data-columns-in-r
-#The most common normalization is the z-transformation, where you subtract the mean and divide by the standard deviation of your variable. The result will have mean=0 and sd=1.
 tf$LatencyToFreeze <- (tf$LatencyToFreeze - mean(tf$LatencyToFreeze)) / sd(tf$LatencyToFreeze)
 tf$TimeFrozen <- (tf$TimeFrozen - mean(tf$TimeFrozen)) / sd(tf$TimeFrozen)
 tf$TimesFlipped <- (tf$TimesFlipped - mean(tf$TimesFlipped)) / sd(tf$TimesFlipped)
@@ -592,7 +429,6 @@ head(SubAlltf)
 #PCA
 pcAlltf<-princomp(SubAlltf,cor=TRUE,scores=TRUE)
 summary(pcAlltf)
-#0.5535 of variance is explained by PC1 - originally not sure if this was good enoug - YES IT IS GOOD ENOUGH as it matches up with the amount of variance explained by PC1 for Red Junglefowl Novel Object Assay!!!!
 
 biplot(pcAlltf)
 pcAlltf$loadings
@@ -601,14 +437,12 @@ AllScorestf
 
 #See loadings
 PCAprtf <- prcomp(SubAlltf,center = TRUE,scale. = TRUE) 
-####IMPORTANT Different variables are loaded strongly and consistently
 print(PCAprtf)
 plot(PCAprtf, type = "l")
 summary(PCAprtf)
 biplot(PCAprtf)
 
 #write.csv(AllScorestf, file = "CicadaTIPC1f.csv")
-#Have to add Individual IDs in to the CSV file (Copy and paste "ID" column from "CicadaRawTIforPCAf.csv" into "CicadaTIPC1f.csv"). Remove everything except PC1 (also kept in PC2 here - decided PC2 was not necessary (see above)). Save file with individuals as CicadaTIPC1f for simplicity.
 
 
 ##HISTOGRAM and qqplots for PC1 WITHOUT TRANSFORMATION
@@ -702,22 +536,14 @@ ntf$DaysSinceEmerge<-as.numeric(ntf$DaysSinceEmerge)
 
 #Use: Assay, DaysSinceMay15, Time, Temp, Humidity, DaysSinceEmerge, Observer, and Individual identity as fixed effects
 
-#USE BELOW METHOD FOR MODEL SELECTION FOR TONIC IMMOBILITY
-#Method use the MuMIN package: https://stackoverflow.com/questions/28606549/how-to-run-lm-models-using-all-possible-combinations-of-several-variables-and-a/52300594
-#Also note this link to set the na.action argument and make sure there are no errors when using the dredge function: https://stackoverflow.com/questions/25281739/dredge-function-error-r-package-mumln  
-# install.packages("MuMIn")
+#USE BELOW METHOD FOR MODEL SELECTION 
 # library(MuMIn)
 # require(MuMIn)
 globalmodel <- lm(PC1~ID+Assay+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerge+Observer,data=ntf,na.action = "na.fail")
 combinations <- dredge(globalmodel)
 print(combinations)
-#Now from this printed list find the model with the lowest AICc that also INCLUDES Individual ID (since ID always needs to be kept in the model)
-#The model with ID and Humidity is the best fit model 
 
-####Model with lowest AICc is:
-#TI1f<-lm(PC1~ID+Humidity,data=ntf)
-#summary(TI1f)
-#SHINICHI says "you probably want to run your model with = ~ ID - 1 - then you can get SE for each individual. You should now see, ID101, ID102, ID103, ID104... (no Intercept)"
+#Now from this printed list find the model with the lowest AICc that also INCLUDES Individual ID (since ID always needs to be kept in the model)
 TI1f<-lm(PC1~ID - 1 +Humidity,data=ntf)
 summary(TI1f)
 
