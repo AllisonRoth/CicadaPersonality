@@ -594,20 +594,13 @@ alive<-I[I$DiedDuring=="N",]
 dead<-I[I$DiedDuring=="Y",]
 
 range(alive$EB, na.rm = TRUE)
-#-8.230178353 to -2.12536741
 range(dead$EB, na.rm = TRUE)
-#-7.240319661 to -4.04970104
 
 hist(alive$EB, breaks=5,xlab="Exploration Behavior")
 hist(dead$EB, breaks=5,xlab="Exploration Behavior")
 
 shapiro.test(alive$EB)
-#Normal enough (p > 0.05)
 shapiro.test(dead$EB)
-#Normal enough (p > 0.05)
-##Because EB measures are "normal enough" for both alive and dead males, we can use a upaired 2 tailed t-test (which is a parametric test)
-#See Table 3: https://www.biochemia-medica.com/en/journal/20/1/10.11613/BM.2010.004/fullArticle
-#install.packages("ggpubr")
 library(ggpubr)
 t.test(alive$EB, dead$EB, alternative = "two.sided", var.equal = FALSE)
 #NO SIGNIFICANT DIFFERENCE IN EB BETWEEN DEAD AND ALIVE MALES - so it's ok to leave them in the analyses
@@ -616,20 +609,13 @@ t.test(alive$EB, dead$EB, alternative = "two.sided", var.equal = FALSE)
 
 ####Check to see TI distributions of males that died during the mating trials compared to those that did NOT die 
 range(alive$TI, na.rm = TRUE)
-#-3.6777105 to 0.2359917
 range(dead$TI, na.rm = TRUE)
-#-3.8510263 to -0.2984309
 
 hist(alive$TI, breaks=5,xlab="Tonic Immobility")
 hist(dead$TI, breaks=5,xlab="Tonic Immobility")
 
 shapiro.test(alive$TI)
-#NOT normal enough (p < 0.05)
 shapiro.test(dead$TI)
-#Normal enough (p > 0.05)
-##Because TI measures are NOT "normal enough" for alive males, we will use a Mann-Whitney U Test (which is a NONparametric test)
-#See Table 3: https://www.biochemia-medica.com/en/journal/20/1/10.11613/BM.2010.004/fullArticle
-#https://rcompanion.org/handbook/F_04.html
 if(!require(psych)){install.packages("psych")}
 if(!require(FSA)){install.packages("FSA")}
 if(!require(lattice)){install.packages("lattice")}
@@ -645,20 +631,13 @@ wilcox.test(TI ~ DiedDuring, data=I)
 
 ####Check to see Weight distributions of males that died during the mating trials compared to those that did NOT die 
 range(alive$Weight, na.rm = TRUE)
-#524 to 924
 range(dead$Weight, na.rm = TRUE)
-#552 to 799
 
 hist(alive$Weight, breaks=5,xlab="Tonic Immobility")
 hist(dead$Weight, breaks=5,xlab="Tonic Immobility")
 
 shapiro.test(alive$Weight)
-#NOT normal enough (p < 0.05)
 shapiro.test(dead$Weight)
-#Normal enough (p > 0.05)
-##Because Weight measures are NOT "normal enough" for alive males, we will use a Mann-Whitney U Test (which is a NONparametric test)
-#See Table 3: https://www.biochemia-medica.com/en/journal/20/1/10.11613/BM.2010.004/fullArticle
-#https://rcompanion.org/handbook/F_04.html
 if(!require(psych)){install.packages("psych")}
 if(!require(FSA)){install.packages("FSA")}
 if(!require(lattice)){install.packages("lattice")}
@@ -711,7 +690,6 @@ ggplot() +
   labs(y = "Successful Copulation (Yes = 1 & No = 0)", x = "Exploration Score (z-transformed)")
 
 
-# TODO - please check whether this original result stands
 #LRT Location
 Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
 Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
@@ -722,10 +700,9 @@ Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) +
 Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
 anova(Test1, Test1n, test="Chisq") 
 
-# #LRT Pen
-# Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
-# Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
-# anova(Test1, Test1n, test="Chisq") 
+
+
+
 
 
 
@@ -772,6 +749,8 @@ anova(Test2, Test2n, test="Chisq")
 
 
 
+
+
 ###########ALL (BOTH SUCCESSFUL AND UNSUCCESSFUL) ATTEMPTED COPULATIONS WITH EITHER SEX###########
 I$All<-I$Mated+I$MU+I$MM
 Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
@@ -803,16 +782,6 @@ ggplot() +
 
 
 
-
-
-
-
-
-
-
-#Switch Pen 1D back to Pen D
-I$Pen[I$Pen == "1D"] <- "D"
-
 #LRT Location
 Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
@@ -822,11 +791,6 @@ anova(Test0, Test0n, test="Chisq")
 Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1+Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 anova(Test0, Test0n, test="Chisq") 
-
-#LRT Pen
-#Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-#Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-#anova(Test0, Test0n, test="Chisq") 
 
 
 
@@ -843,13 +807,11 @@ A$NumberAdvert<-as.numeric(A$NumberAdvert)
 A$Weight<-as.numeric(A$Weight)
 A$EB<-as.numeric(A$EB)
 A$TI<-as.numeric(A$TI)
-#SCALE VARIABLES TO TRY TO STOP CONVERGENCE WARNINGS
-#https://stackoverflow.com/questions/41766181/correct-way-to-scale-for-multilevel-regression-using-lmer-r
+#SCALE VARIABLES 
 A <- transform(A,Weight.sc=scale(Weight),EB.sc=scale(EB),TI.sc=scale(TI))
 
 hist(A$DurationCI)
 shapiro.test(A$DurationCI)
-#Normal enough (p > 0.05)
 hist(A$NumberAdvert)
 
 Test3 <- lm(DurationCI ~ EB.sc, data = A)
