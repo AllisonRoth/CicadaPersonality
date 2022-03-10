@@ -1,7 +1,3 @@
-# TODO - Allison below is mixes of scripts and a bit confusing - do you want to try to tidy up a bit
-# TODO - loading all the required pacakges at the top etc
-
-
 #Update R packages
 update.packages(ask = FALSE, checkBuilt = TRUE)
 
@@ -10,6 +6,16 @@ library(here) # making the path works for all of people running it from R
 library(tidyverse)
 library(broom)
 library(broom.mixed)
+library(lme4)
+library(ggplot2) 
+library(lmeresampler)
+library(dplyr)
+library(MuMIn)
+library(lmerTest)
+library(glmmTMB)
+library(ggpubr)
+library(emmeans)
+
 
 #######Novel Arena#######
 #Only look at MALES for NA
@@ -66,10 +72,10 @@ qqline(n$PC1)
 #Data is NOT normally distributed!!!!So use MODIFIED VERSION OF Nakagawa's code that I used in Roth et al. 2021 JAE 
 
 #Residual Plot for PC1 WITHOUT TRANSFORMATION
-library(lme4)
+#library(lme4)
 Naka<-lmer(PC1~(1|Assay)+(1|DaysSinceMay15)+(1|Time)+(1|Temp)+(1|Humidity)+(1|DaysSinceEmerge)+(1|ID),data=n)
 summary(Naka)
-library(ggplot2) 
+#library(ggplot2) 
 head(fortify(Naka))
 residPlot<-ggplot(aes(x=.fitted,y=.resid),data=Naka)+geom_point()+geom_hline(yintercept=0)+labs(x="Fitted Values",y="Residuals")
 residPlot
@@ -202,7 +208,7 @@ n$PC1n <- n$PC1*-1
 #Use: Assay, DaysSinceMay15, Time, Temp, Humidity, DaysSinceEmerge, and Individual identity as fixed effects
 #USE BELOW METHOD FOR MODEL SELECTION 
 install.packages("MuMIn")
-library(MuMIn)
+#library(MuMIn)
 require(MuMIn)
 globalmodel <- lm(PC1n~ID+Assay+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerge,data=n,na.action = "na.fail")
 combinations <- dredge(globalmodel)
@@ -375,7 +381,7 @@ ntm$DaysSinceEmerge<-as.numeric(ntm$DaysSinceEmerge)
 #Use: Assay, DaysSinceMay15, Time, Temp, Humidity, DaysSinceEmerge, Observer, and Individual identity as fixed effects
 
 #USE BELOW METHOD FOR MODEL SELECTION 
-library(MuMIn)
+#library(MuMIn)
 require(MuMIn)
 globalmodel <- lm(PC1~ID+Assay+DaysSinceMay15+Time+Temp+Humidity+DaysSinceEmerge+Observer,data=ntm,na.action = "na.fail")
 combinations <- dredge(globalmodel)
@@ -565,11 +571,7 @@ cor.test(BS$EB,BS$TI)
 
 
 #########MATING ANALYSES#########
-
-
-library(lmerTest)
-#install.packages("glmmTMB")
-library(glmmTMB)
+#library(glmmTMB)
 I<-read.csv("data/CicadaCollatedMatingData.csv",colClasses="character")
 head(I)
 I$Pen[I$Pen == "1"] <- "A"
@@ -601,7 +603,7 @@ hist(dead$EB, breaks=5,xlab="Exploration Behavior")
 
 shapiro.test(alive$EB)
 shapiro.test(dead$EB)
-library(ggpubr)
+#library(ggpubr)
 t.test(alive$EB, dead$EB, alternative = "two.sided", var.equal = FALSE)
 #NO SIGNIFICANT DIFFERENCE IN EB BETWEEN DEAD AND ALIVE MALES - so it's ok to leave them in the analyses
 
@@ -667,7 +669,7 @@ summary(Test1)
 tidy(Test1)
 
 # just assuming this is the best mode
-library(emmeans)
+#library(emmeans)
 
 pred_results <- Test1 %>% 
   emmeans(~ EB.sc,
