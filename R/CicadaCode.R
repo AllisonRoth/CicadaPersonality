@@ -857,20 +857,6 @@ I <- transform(I,Weight.sc=scale(Weight),EB.sc=scale(EB),TI.sc=scale(TI))
 
 
 ###########SUCCESSFUL COPULATIONS###########
-#Weight by whether they died midway through the day (i.e., before the evening) 
-#Not sure this is necessary since no significnt difference between alive and dead males in EB or TI (also 3/11 males that died during the mating trial were the ACTORS of some interaction (compared to 78/108 males that did not die))
-#Either way though, do NOT resolve by completely removing dead males since 3/11 males that died during the mating trial were the ACTORS of some interaction
-#Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, weight = Died, family = binomial)
-#summary(Test1) 
-#SHINICHI DOESN'T THINK WEIGHTING OUR MODELS BY DIED VS NOT DIED IS NECESSARY 
-#Updated unweighted models
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
-summary(Test1) 
-
-#Currently Pen A is the reference class
-#Change Pen B to reference class
-I$Pen[I$Pen == "B"] <- "1B"
-#Rerun analyses
 Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
 summary(Test1) 
 tidy(Test1)
@@ -898,22 +884,6 @@ ggplot() +
   theme(legend.position = "none")  +
   labs(y = "Successful Copulation (Yes = 1 & No = 0)", x = "Exploration Score (z-transformed)")
 
-# #Switch Pen 1B back to Pen B
-# I$Pen[I$Pen == "1B"] <- "B"
-# #Change Pen C to reference class
-# I$Pen[I$Pen == "C"] <- "1C"
-# #Rerun analyses
-# Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
-# summary(Test1) 
-# #Switch Pen 1C back to Pen C
-# I$Pen[I$Pen == "1C"] <- "C"
-# #Change Pen D to reference class
-# I$Pen[I$Pen == "D"] <- "1D"
-# #Rerun analyses
-# Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, family = binomial)
-# summary(Test1) 
-# #Switch Pen 1D back to Pen D
-# I$Pen[I$Pen == "1D"] <- "D"
 
 # TODO - please check whether this original result stands
 #LRT Location
@@ -935,12 +905,6 @@ anova(Test1, Test1n, test="Chisq")
 
 ########### M-M ATTEMPTED COPULATIONS ###########
 hist(I$MM, breaks=20,xlab="M-M Attempted Copulations")
-#Will need to use a zero inflated Poisson
-#Weight by whether they died midway through the day
-#Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, weight = Died, ziformula=~1, family = poisson)
-#summary(Test2) 
-#SHINICHI DOESN'T THINK WEIGHTING OUR MODELS BY DIED VS NOT DIED IS NECESSARY 
-#Updated unweighted models
 Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 summary(Test2) 
 tidy(Test2)
@@ -968,30 +932,6 @@ ggplot() +
 
 
 
-
-#Currently Pen A is the reference class
-#Change Pen B to reference class
-# I$Pen[I$Pen == "B"] <- "1B"
-# #Rerun analyses
-# Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-# summary(Test2)
-# #Switch Pen 1B back to Pen B
-# I$Pen[I$Pen == "1B"] <- "B"
-# #Change Pen C to reference class
-# I$Pen[I$Pen == "C"] <- "1C"
-# #Rerun analyses
-# Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-# summary(Test2)
-# #Switch Pen 1C back to Pen C
-# I$Pen[I$Pen == "1C"] <- "C"
-# #Change Pen D to reference class
-# I$Pen[I$Pen == "D"] <- "1D"
-# #Rerun analyses
-# Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-# summary(Test2)
-# #Switch Pen 1D back to Pen D
-# I$Pen[I$Pen == "1D"] <- "D"
-
 #LRT Location
 Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
@@ -1002,10 +942,6 @@ Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|I
 Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 anova(Test2, Test2n, test="Chisq") 
 
-# #LRT Pen
-# Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-# Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-# anova(Test2, Test2n, test="Chisq") 
 
 
 
@@ -1014,27 +950,8 @@ anova(Test2, Test2n, test="Chisq")
 I$All<-I$Mated+I$MU+I$MM
 Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 summary(Test0)
+tidy(Test0)
 
-#Currently Pen A is the reference class
-#Change Pen B to reference class
-I$Pen[I$Pen == "B"] <- "1B"
-#Rerun analyses
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen)  + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-summary(Test0) 
-#Switch Pen 1B back to Pen B
-I$Pen[I$Pen == "1B"] <- "B"
-#Change Pen C to reference class
-I$Pen[I$Pen == "C"] <- "1C"
-#Rerun analyses
-#Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-summary(Test0) 
-#Switch Pen 1C back to Pen C
-I$Pen[I$Pen == "1C"] <- "C"
-#Change Pen D to reference class
-I$Pen[I$Pen == "D"] <- "1D"
-#Rerun analyses
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-summary(Test0) 
 
 
 pred_results <- Test0 %>% 
