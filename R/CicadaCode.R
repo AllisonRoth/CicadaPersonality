@@ -988,19 +988,19 @@ ggplot() +
 I$Pen[I$Pen == "1D"] <- "D"
 
 #LRT Location
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 anova(Test0, Test0n, test="Chisq") 
 
 #LRT Date
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1+Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
 anova(Test0, Test0n, test="Chisq") 
 
 #LRT Pen
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + Pen + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-anova(Test0, Test0n, test="Chisq") 
+#Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+#Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
+#anova(Test0, Test0n, test="Chisq") 
 
 
 
