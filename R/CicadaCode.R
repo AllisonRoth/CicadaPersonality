@@ -692,17 +692,6 @@ ggplot() +
   labs(y = "Successful Copulation (Yes = 1 & No = 0)", x = "Exploration Score (z-transformed)")
 
 
-#LRT Location
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
-Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
-anova(Test1, Test1n, test="Chisq") 
-
-#LRT Date
-Test1<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location + Date +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
-Test1n<-glmmTMB(Mated ~  EB.sc + TI.sc + Weight.sc + Location +  (1|Pen) + (1|ID) + (1|Group), data=I, family = binomial)
-anova(Test1, Test1n, test="Chisq") 
-
-
 
 
 
@@ -734,18 +723,6 @@ ggplot() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
   labs(y = "Number of Male-Male Copulation Attempts", x = "Exploration Score (z-transformed)")
-
-
-
-#LRT Location
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-anova(Test2, Test2n, test="Chisq") 
-
-#LRT Date
-Test2<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test2n<-glmmTMB(MM ~ EB.sc + TI.sc + Weight.sc + Location + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-anova(Test2, Test2n, test="Chisq") 
 
 
 
@@ -781,18 +758,6 @@ ggplot() +
   scale_color_gradient() +
   theme(legend.position = "none")  +
   labs(y = "Number of All Copulation Attempts", x = "Exploration Score (z-transformed)")
-
-
-
-#LRT Location
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Date + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-anova(Test0, Test0n, test="Chisq") 
-
-#LRT Date
-Test0<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + Date + (1+Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-Test0n<-glmmTMB(All ~ EB.sc + TI.sc + Weight.sc + Location + (1|Pen) + (1|ID) + (1|Group), data=I, ziformula=~1, family = poisson)
-anova(Test0, Test0n, test="Chisq") 
 
 
 
